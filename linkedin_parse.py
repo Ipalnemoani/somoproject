@@ -312,12 +312,13 @@ if __name__ == '__main__':
     account = ''
     login = ''
     password = ''
+    post_qty = None
     
     linkedin_bot  = LinkedInPy(account, login, password)
     linkedin_bot.start_driver_session()
     linkedin_bot.login_to_linkedin()
 
-    posts = linkedin_bot.get_posts(last_posts_qty=None)
+    posts = linkedin_bot.get_posts(last_posts_qty=post_qty)
     results = linkedin_bot.collect_posts_info(posts)
 
     pprint.pprint(results)
