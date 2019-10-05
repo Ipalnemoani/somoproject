@@ -17,7 +17,8 @@ class LinkedInPy():
     """
         Class, allows to create a selenium chromedriver object and 
         parse users posts.
-        As arguments, it accepts the linkedin user account name for parsing, and the login and password of the account through which parsing takes place.
+        As arguments, it accepts the linkedin user account name for parsing, 
+        and the login and password of the account through which parsing takes place.
     """
 
     def __init__(self, account, login, password):
@@ -69,14 +70,14 @@ class LinkedInPy():
             The method initializes selenium chrome driver with options 
             and return driver object.
         """
+        
         try:
             options = webdriver.ChromeOptions()
             options.add_argument("--ignore-certificate-errors")
             options.add_argument("--test-type")
             options.add_argument("--no-sandbox")
             self.driver = webdriver.Chrome( options=options, 
-                                            executable_path=self.driver_path
-                                            )
+                                            executable_path=self.driver_path)
         except:
             print('Can init Chrome Web Driver')
             print(sys.exc_info())
@@ -124,7 +125,6 @@ class LinkedInPy():
                 
                 # After login save cookies as python object to the pickle file
                 pickle.dump(self.driver.get_cookies(), open(cookie_file, 'wb'))
-
             except NoSuchElementException:
                 print('\n-------------------- ERROR ------------------------\n')
                 print('On Login Page ( "{}" )\ndriver cant find element.\n'.format(self.login_url))
@@ -152,19 +152,24 @@ class LinkedInPy():
 
         # Open page with posts for account
         self.driver.get(self.owner_posts_url)
-
-        all_posts_divs = []
+        
+        # Get start page height coord to scroll
         scroll_height_func = 'return document.body.scrollHeight'
         start_page_height = self.driver.execute_script(scroll_height_func)
         
         flag = True
         start_div = 0
+        all_posts_divs = []
+        
         while flag:
             visible_divs = self.get_list_post_divs()
             qty_visible_divs = len(visible_divs)
-            all_posts_divs.extend(visible_divs[start_div:qty_visible_divs])
             
+            all_posts_divs.extend(visible_divs[start_div:qty_visible_divs])
+  
             divs_qty = len(all_posts_divs)
+            
+         
             if last_posts_qty and divs_qty >= last_posts_qty:
                 flag = False
             else:
@@ -173,13 +178,17 @@ class LinkedInPy():
                     flag = False
                 start_page_height = end_page_height
                 start_div = qty_visible_divs
-
+        
+        # First open page have 5 visible posts. If we need less posts - get slice.
         if last_posts_qty and last_posts_qty <= 5:
             return all_posts_divs[:last_posts_qty]
         else:
             return all_posts_divs
 
     def collect_posts_info(self, all_posts_divs):
+        
+        """ Parse post divs and collect info from it """
+        
         posts = []
         for div in all_posts_divs:
             post_dict = {}
@@ -210,20 +219,23 @@ class LinkedInPy():
             sys.exit()
 
     def get_post_url(self, div):
-        # Find "more" button, scroll to it and click
-        btn_xpath = './/artdeco-dropdown'
-        copy_btn_xpath = './/*[@class="option-share-via"]'
-        url_xpath = './/*[@class="artdeco-toast-item__cta"]'
-        
-        more_button = div.find_element_by_xpath(btn_xpath)
-        self.driver.execute_script("arguments[0].scrollIntoView(false)", more_button)
-        more_button.click()
-        
-        time.sleep(1)
-        div.find_element_by_xpath(copy_btn_xpath).click()
+        try:
+            # Find "more" button in post div, scroll to it and click.
+            btn_xpath = './/artdeco-dropdown'
+            copy_btn_xpath = './/*[@class="option-share-via"]'
+            url_xpath = './/*[@class="artdeco-toast-item__cta"]'
 
-        time.sleep(1)
-        return self.driver.find_element_by_xpath(url_xpath).get_attribute("href")
+            more_button = div.find_element_by_xpath(btn_xpath)
+            self.driver.execute_script("arguments[0].scrollIntoView(false)", more_button)
+            more_button.click()
+
+            time.sleep(1)
+            div.find_element_by_xpath(copy_btn_xpath).click()
+
+            time.sleep(1)
+            return self.driver.find_element_by_xpath(url_xpath).get_attribute("href")
+        except NoSuchElementException:
+            return 'NoPostUrl'
 
     @staticmethod
     def get_author(div):
@@ -275,9 +287,9 @@ class LinkedInPy():
 
     @staticmethod
     def get_likes_qty(div):
-        likes_xpath = './/*[@data-control-name="likes_count"]'
-        qty_xpath = './/*[@class="v-align-middle social-details-social-counts__reactions-count"]'
         try:
+            likes_xpath = './/*[@data-control-name="likes_count"]'
+            qty_xpath = './/*[@class="v-align-middle social-details-social-counts__reactions-count"]'
             likes_button = div.find_element_by_xpath(likes_xpath)
             qty_likes = likes_button.find_element_by_xpath(qty_xpath).text
         except NoSuchElementException:
@@ -286,8 +298,8 @@ class LinkedInPy():
 
     @staticmethod
     def get_comments_qty(div):
-        comments_xpath = './/*[@data-control-name="comments_count"]/span'
         try:
+            comments_xpath = './/*[@data-control-name="comments_count"]/span'
             comments_text = div.find_element_by_xpath(comments_xpath).text
             comments_qty = re.findall('\d+', comments_text)[0]
         except NoSuchElementException:
