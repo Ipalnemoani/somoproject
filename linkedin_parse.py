@@ -221,28 +221,12 @@ class LinkedInPy():
     def get_post_url(self, div):
         try:
             # Find "more" button in post div, scroll to it and click.
-            btn_xpath = './/artdeco-dropdown'
-            copy_btn_xpath = './/*[@class="option-share-via"]'
+            #btn_xpath = './/artdeco-dropdown'
+            #copy_btn_xpath = './/*[@class="option-share-via"]'
             url_xpath = './/*[@class="artdeco-toast-item__cta"]'
             
-            """
-            more_button = div.find_element_by_xpath(btn_xpath)
-            self.driver.execute_script("arguments[0].scrollIntoView(false)", more_button)
-            more_button.click()
-
-            time.sleep(1)
-            div.find_element_by_xpath(copy_btn_xpath).click()
-
-            time.sleep(1)
-            """
-           
-            more_btn_tag = 'artdeco-dropdown-trigger'
             copy_btn_tag = 'artdeco-dropdown-item'
-            
-            js_more_btn_click = 'arguments[0].getElementsByTagName("{0}")[0].click();'.format(more_btn_tag)
             js_copy_btn_click = 'arguments[0].getElementsByTagName("{0}")[0].click();'.format(copy_btn_tag)
-            
-            self.driver.execute_script(js_more_btn_click, div)
             self.driver.execute_script(js_copy_btn_click, div)
             
             return self.driver.find_element_by_xpath(url_xpath).get_attribute("href")
