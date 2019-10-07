@@ -239,8 +239,8 @@ class LinkedInPy():
             more_btn_tag = 'artdeco-dropdown-trigger'
             copy_btn_tag = 'artdeco-dropdown-item'
             
-            js_more_btn_click = 'arguments[0].getElementsByTagName({0})[0].click();'.format(more_btn_tag)
-            js_copy_btn_click = 'arguments[0].getElementsByTagName({0})[0].click();'.format(copy_btn_tag)
+            js_more_btn_click = 'arguments[0].getElementsByTagName("{0}")[0].click();'.format(more_btn_tag)
+            js_copy_btn_click = 'arguments[0].getElementsByTagName("{0}")[0].click();'.format(copy_btn_tag)
             
             self.driver.execute_script(js_more_btn_click, div)
             self.driver.execute_script(js_copy_btn_click, div)
